@@ -1,0 +1,63 @@
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model Currency {
+    id          Int   @id @unique   @default(autoincrement())
+    name        String
+    acronym     String
+    book        Book[]
+}
+
+model Book {
+    id          Int      @id @unique @default(autoincrement())
+    name        String
+    authors     Author[]
+    language    String
+    categories  Category[]
+    price       Decimal  @db.Money
+    currencyId  Int      
+    currency    Currency @relation(fields: [currencyId], references: [id]) 
+    year        Int
+    ratings     Rating[]
+    users       User[]
+}
+
+model User {
+    id              Int    @id @default(autoincrement())
+    login_or_email  String @unique @db.VarChar(255) 
+    name            String @db.VarChar(255)
+    register_date   DateTime
+    description     String
+    password        String
+    books           Book[]
+    ratings         Rating[]
+}
+
+model Category {
+    id          Int      @id @unique @default(autoincrement())
+    name        String   @unique 
+    books       Book[]
+}
+
+model Author {
+    id          Int      @id @unique @default(autoincrement())
+    name        String   
+    born_year   Int
+    died_year   Int
+    books       Book[]
+}
+
+model Rating {
+    id          Int      @id @unique @default(autoincrement())
+    rating      Int     
+    book        Book @relation(fields: [bookId], references: [id])
+    bookId      Int 
+    user        User @relation(fields: [userId], references: [id])
+    userId      Int 
+}
